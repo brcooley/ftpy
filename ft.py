@@ -42,11 +42,11 @@ from optparse import *
 from netrc import *
 from subprocess import *
 
-#TODO Change config file & title/version
+#TODO Change config file
 LOG_FILE = time.strftime('.%Y-%m-%d.log')
 CONFIG_FILE = '.drupdate.conf'
-PROG_TITLE = 'drupdate'
-VERSION = '0.7.4a'
+PROG_TITLE = 'ft.py'
+VERSION = '0.1a'
 
 DEF_CONFIG = {
 		'DirectoriesToSave' : '',
@@ -245,8 +245,8 @@ def main():
 
 	''' Option -A currently does not work  '''
 	parser = OptionParser(description=DESC, prog=PROG_TITLE, version='{} version {}'.format(PROG_TITLE, VERSION),
-						usage='drupupdate.py [options] [user:pw@]host')
-	parser.add_option('-v','--ver', help="Specify the version of drupal to get, like 'X.y'", metavar='VER')
+						usage='ft.py [options] [user:pw@]host')
+	#DEL parser.add_option('-v','--ver', help="Specify the version of drupal to get, like 'X.y'", metavar='VER')
 	parser.add_option('-u','--user', help='Specify a username to login to a host with')
 	parser.add_option('-p','--password', help='Password to use with login', metavar='PASS')
 	parser.add_option('--account', help='Specify an account to use with login', metavar='ACCT')
@@ -255,10 +255,10 @@ def main():
 						help='Stops the script from downloading and unpacking Drupal')
 	parser.add_option('-q','--quiet',action='store_true', default=False, help='Silences output')
 	parser.add_option('-s','--save-logs',action='store_true', default=False,
-						help='Tells drupdate to move old logs to a .log folder instead of deleting them')
-	parser.add_option('-t','--testrun', action='store_true', default=False, help=
-					'''Same as a normal run, except files aren't actually changed. A detailed log of operations
-						is printed to stdout''')
+						help='Tells {} to move old logs to a .log folder instead of deleting them'.format(PROG_TITLE))
+	#DEL parser.add_option('-t','--testrun', action='store_true', default=False, help=
+	#DEL 				'''Same as a normal run, except files aren't actually changed. A detailed log of operations
+	#DEL 					is printed to stdout''')
 	#parser.add_option('-d','--debug', action='store_true', default=False,
 	#				  help='Turns on debugging (WARNING: This will log private information, such as usernames)')
 	#parser.add_option('-A','--auto', action='store_true',
@@ -396,19 +396,22 @@ def main():
 	cleanLogs(options.save_logs)
 
 
-def printAndLog(message, level=log.DEBUG, verbOverride=False, printStream=sys.stdout):
+def printAndLog(message, level=log.DEBUG, verbOverride=False, **kwargs):
 	''' A simple method which prints and logs the same message. '''
 	log.log(level, message)
-	if verbose or verbOverride:
-		print(message, file=printStream)
+	if verbOverride:
+		print(message, **kwargs)
+	else:
+		sprint(message, **kwargs)
 
 
-def sprint(message,sep=' ',end='\n',file=sys.stdout):
+def sprint(message, **kwargs):
 	''' Simple wrapper to print method that respects verbose option. '''
 	if verbose:
-		print(message,sep=sep,end=end,file=file)
+		print(message, **kwargs)
 
 
+#TODO Fix desc
 DESC = '''
 	A simple python script which automatically removes and replaces a 'typical' Drupal install on a
 remote FTP server.  Only tested on Drupal 7.x installs, use with care
