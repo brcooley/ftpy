@@ -44,7 +44,7 @@ from subprocess import *
 
 #TODO Change config file
 LOG_FILE = time.strftime('.%Y-%m-%d.log')
-CONFIG_FILE = '.drupdate.conf'
+CONFIG_FILE = '.ftrc'
 PROG_TITLE = 'ft.py'
 VERSION = '0.1a'
 
@@ -62,10 +62,23 @@ testrun = False
 i = j = 0
 configDict = {}
 
+class FTPConnection(object):
+	'''Class encapsulating a signle FTP connection.'''
+
+	def __init__(self, server, **kwargs):
+		self.server = server
+		import ftplib
+		try:
+			self._conn = ftplib.FTP(server)
+		except ftplib.all_errors:
+			#???
+			pass
+
+
 
 def collectLogin(mainArg, userN='', pw='', acct=''):
 	''' Collects host, username, password, and optional account information. '''
-	log.debug(sys.platform)
+	log.debug("Platform: {}".format(sys.platform))
 	if sys.platform == 'linux2':
 		try:
 			ftpInfo = netrc()
@@ -315,7 +328,7 @@ def main():
 		ftpConn.connect(remoteSvr)
 		log.info('Connection made to {}'.format(remoteSvr))
 		ftpConn.login(userN,pw,acct)
-	except ftplib.all_errors:		# TODO break out, create fixes for each error
+	except ftplib.all_errors:		#TODO break out, create fixes for each error
 		printAndLog('Something went wrong...',log.CRITICAL,True,sys.stderr)
 		sys.exit(1)
 
