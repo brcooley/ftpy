@@ -1,9 +1,8 @@
 #! /usr/bin/python3
 # -*- coding: utf-8 -*-
 
-#TODO Change program name & copyright year
-''' drupdate is a one-step drupal updater
-	Copyright (C) 2011  Brett Cooley
+''' ft.py is a clean, powerful API for FTP interactions in python
+	Copyright (C) 2012  Brett Cooley
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -42,6 +41,10 @@ from optparse import *
 from netrc import *
 from subprocess import *
 
+#CONSTANTS
+FTP_SUCCESS = 0
+FTP_FAILURE = 1
+
 #TODO Change config file
 LOG_FILE = time.strftime('.%Y-%m-%d.log')
 CONFIG_FILE = '.ftrc'
@@ -52,8 +55,8 @@ DEF_CONFIG = {
 		'DirectoriesToSave' : '',
 		'FilesToSave' 		: '',
 		'DrupalBaseDir' 	: 'public_html',
-		'DrupalVersion' 	: '7.12',
-		'MLSDSupport'		: 'True'
+		'DrupalVersion' 	: '7.12'
+,		'MLSDSupport'		: 'True'
 	}
 
 ftpConn = None
@@ -76,10 +79,64 @@ class FTPConnection(object):
 
 
 
+
+#NEW FUNCTIONS -- HIGH LEVEL API
+
+def login(server=None,connections=1):
+	'''Allows n login(s) to a remote server'''
+
+def logout(server=None,connections=-1):
+	'''Logs out of n login(s) to a remote server (default n: all).'''
+
+def upload(server=None,localName="."):
+	'''Abstraction of uploading files, uses global connection(s) if server is not given.'''
+
+def download(server=None,remoteName="."):
+	'''Abstraction of downloading files, uses global connection(s) if server is not given.'''
+
+def connections(server=None,number=1):
+	'''Sets the number of connections to the given or global server.'''
+
+def info(server=None,**kwargs):
+	'''Allows for queries against the current state of the session with the given or global server.'''
+
+def secure(server=None,connections=-1):
+	'''Enables (a) secure connection(s) to the given or global server.  Is idempotent when called on all connections.'''
+
+def insecure(server=None,connections=-1):
+	'''Disables (a) secure connection(s) to the given or global server.  Is idempotent when called on all connections.'''
+
+def cmd(server=None,*args):
+	'''Executes the commands listed in *args for the specified server.'''
+
+# def cd(server=None,*args):
+# 	'''Changes the current directory on the given or global server.'''
+# 	return cmd(server, *args)
+
+# def cp(server=None,src=".",dest=".",*args):
+# 	'''Copies SRC to DEST on the given or global server.'''
+# 	return cmd(server, src, dest, *args)
+
+
+def _new_cmd(name):
+	'''Private function factory which outputs all the command specific globals.'''
+	def _make_cmd(server=None,*args):
+		return cmd(server, [name] + list(args))
+	return _make_cmd
+
+# This should be possible in a programmatic way, but mucking with globals seems to be failing
+cd = _new_cmd('cd')
+cp = _new_cmd('cp')
+mv = _new_cmd('mv')
+ls = _new_cmd('ls')
+
+
+
+#END NEW FUNCTIONS
 def collectLogin(mainArg, userN='', pw='', acct=''):
 	''' Collects host, username, password, and optional account information. '''
 	log.debug("Platform: {}".format(sys.platform))
-	if sys.platform == 'linux2':
+	if sys.platform.startswith('linux'):
 		try:
 			ftpInfo = netrc()
 			if ftpInfo.authenticators(remoteSrv) != None:
