@@ -18,18 +18,15 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>. '''
 
 import logging as log
-'''
-	Logging level definitions:
+'''	Logging level definitions:
 	-- DEBUG: Debugging and system information/user input
 	-- INFO: Status, ftp command info
 	-- WARNING: Error which does not impede functionality
 	-- ERROR: Major failure which allows program to run, but impedes functionality
-	-- CRITICAL: Error causing program abort
-'''
+	-- CRITICAL: Error causing program abort '''
 
 import sys
 import re
-import time
 import ftplib
 import json
 import os
@@ -41,22 +38,12 @@ from optparse import *
 from netrc import *
 from subprocess import *
 
-#CONSTANTS
-FTP_SUCCESS = 0
-FTP_FAILURE = 1
-
-#TODO Change config file
-LOG_FILE = time.strftime('.%Y-%m-%d.log')
-CONFIG_FILE = '.ftrc'
-PROG_TITLE = 'ft.py'
-VERSION = '0.1a'
-
 DEF_CONFIG = {
 		'DirectoriesToSave' : '',
 		'FilesToSave' 		: '',
 		'DrupalBaseDir' 	: 'public_html',
-		'DrupalVersion' 	: '7.12'
-,		'MLSDSupport'		: 'True'
+		'DrupalVersion' 	: '7.12',
+		'MLSDSupport'		: 'True'
 	}
 
 ftpConn = None
@@ -70,7 +57,6 @@ class FTPConnection(object):
 
 	def __init__(self, server, **kwargs):
 		self.server = server
-		import ftplib
 		try:
 			self._conn = ftplib.FTP(server)
 		except ftplib.all_errors:
@@ -78,61 +64,6 @@ class FTPConnection(object):
 			pass
 
 
-
-
-#NEW FUNCTIONS -- HIGH LEVEL API
-
-def login(server=None,connections=1):
-	'''Allows n login(s) to a remote server'''
-
-def logout(server=None,connections=-1):
-	'''Logs out of n login(s) to a remote server (default n: all).'''
-
-def upload(server=None,localName="."):
-	'''Abstraction of uploading files, uses global connection(s) if server is not given.'''
-
-def download(server=None,remoteName="."):
-	'''Abstraction of downloading files, uses global connection(s) if server is not given.'''
-
-def connections(server=None,number=1):
-	'''Sets the number of connections to the given or global server.'''
-
-def info(server=None,**kwargs):
-	'''Allows for queries against the current state of the session with the given or global server.'''
-
-def secure(server=None,connections=-1):
-	'''Enables (a) secure connection(s) to the given or global server.  Is idempotent when called on all connections.'''
-
-def insecure(server=None,connections=-1):
-	'''Disables (a) secure connection(s) to the given or global server.  Is idempotent when called on all connections.'''
-
-def cmd(server=None,*args):
-	'''Executes the commands listed in *args for the specified server.'''
-
-# def cd(server=None,*args):
-# 	'''Changes the current directory on the given or global server.'''
-# 	return cmd(server, *args)
-
-# def cp(server=None,src=".",dest=".",*args):
-# 	'''Copies SRC to DEST on the given or global server.'''
-# 	return cmd(server, src, dest, *args)
-
-
-def _new_cmd(name):
-	'''Private function factory which outputs all the command specific globals.'''
-	def _make_cmd(server=None,*args):
-		return cmd(server, [name] + list(args))
-	return _make_cmd
-
-# This should be possible in a programmatic way, but mucking with globals seems to be failing
-cd = _new_cmd('cd')
-cp = _new_cmd('cp')
-mv = _new_cmd('mv')
-ls = _new_cmd('ls')
-
-
-
-#END NEW FUNCTIONS
 def collectLogin(mainArg, userN='', pw='', acct=''):
 	''' Collects host, username, password, and optional account information. '''
 	log.debug("Platform: {}".format(sys.platform))
