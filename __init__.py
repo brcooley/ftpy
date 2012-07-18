@@ -4,7 +4,7 @@
 import time
 
 from .ft import *
-from functools import wraps
+# from functools import wraps
 
 SUPPORTED_CMDS = [
 	'cd',
@@ -19,6 +19,8 @@ VERSION = "0.1a"
 LOG_FILE = time.strftime('.%Y-%m-%d.log')
 CONFIG_FILE = '.ftpyrc'
 
+DEBUG = True
+
 # CONSTANTS
 FTP_SUCCESS = 0
 FTP_FAILURE = 1
@@ -31,6 +33,15 @@ def _api(level,stability):
 	def wrapper(fn):
 		fn.__doc__ = fn.__doc__.format(level,stability)
 		return fn
+	return wrapper
+
+def _return_type(ret_type,enabled):
+	def wrapper(fn, *args, **kwargs):
+		result = fn(*args, **kwargs)
+		if enabled and ret_type != type(result):
+			raise TypeError#, info(fn.__name__, (ret_type,), (type(result),), 1)
+		else:
+			return result
 	return wrapper
 
 
@@ -88,7 +99,7 @@ def download(server=None,remoteName="."):
 	Stability: {}
 	'''
 
-
+@_return_type(int, False)
 @_api(1,"Experimental")
 def connections(server=None,number=1):
 	'''
